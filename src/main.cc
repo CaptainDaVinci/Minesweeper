@@ -38,14 +38,11 @@ class mineSweeper
             {
                 if (reveal && mask[i][j])
                 {
-                    std::cout << RED << " * ";
                     std::cout << RED << " # ";
                 }
                 else
                 {
-                    if (board[i][j] == '*')
-                        std::cout << BLUE << ' ' << board[i][j] << ' ';
-                    else if (board[i][j] == '+')
+                    if (board[i][j] == '+')
                         std::cout << TILE << ' ' << board[i][j] << ' ';
                     else
                         std::cout << GREEN << ' ' << board[i][j] << ' ';
