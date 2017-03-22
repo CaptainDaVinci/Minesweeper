@@ -6,6 +6,8 @@
 void getValues(unsigned int &posi, unsigned int &posj);
 auto constexpr RED = "\x1b[31;1m";
 auto constexpr GREEN = "\x1b[32;1m";
+auto constexpr BLUE = "\x1b[34;1m";
+auto constexpr TILE = "\x1b[30;47m";
 auto constexpr RESET = "\x1b[0m";
 
 class mineSweeper
@@ -20,31 +22,36 @@ class mineSweeper
     {
         std::cout << "   ";
 
-        for (size_t i = 0; i < board[0].size(); ++i)
+        for (size_t i = 0; i < board.size(); ++i)
             std::cout << std::setw(3)
                       << i << " ";
         drawLine();
 
         size_t col = 0;
-        for (size_t i = 0; i < board[0].size(); ++i)
+        for (size_t i = 0; i < board.size(); ++i)
         {
 
             std::cout << std::setw(2)
-                      << col++ << " | ";
+                      << col++ << " |";
 
-            for (size_t j = 0; j < board[0].size(); ++j)
+            for (size_t j = 0; j < board.size(); ++j)
             {
                 if (reveal && mask[i][j])
-                    std::cout << RED << '#';
+                {
+                    std::cout << RED << " * ";
+                    std::cout << RED << " # ";
+                }
                 else
                 {
-                    if (board[i][j] != '+')
-                        std::cout << GREEN << board[i][j];
+                    if (board[i][j] == '*')
+                        std::cout << BLUE << ' ' << board[i][j] << ' ';
+                    else if (board[i][j] == '+')
+                        std::cout << TILE << ' ' << board[i][j] << ' ';
                     else
-                        std::cout << board[i][j];
+                        std::cout << GREEN << ' ' << board[i][j] << ' ';
                 }
 
-                std::cout << RESET << " | ";
+                std::cout << RESET << "|";
             }
 
             drawLine();
@@ -56,7 +63,7 @@ class mineSweeper
         std::cout << std::endl
                   << "   ";
 
-        for (size_t i = 0; i < board[0].size(); ++i)
+        for (size_t i = 0; i < board.size(); ++i)
             std::cout << "----";
 
         std::cout << std::endl;
@@ -64,13 +71,14 @@ class mineSweeper
 
     void generateMines(void)
     {
-        for (size_t k = 0; k < 20; ++k)
+        unsigned int mines = (board.size() == 16 ? 40 : 10);
+
+        for (size_t k = 0; k < mines; ++k)
         {
-            size_t i = rand() / (RAND_MAX / board[0].size() + 1);
-            size_t j = rand() / (RAND_MAX / board[0].size() + 1);
+            size_t i = rand() / (RAND_MAX / board.size() + 1);
+            size_t j = rand() / (RAND_MAX / board.size() + 1);
 
             mask[i][j] = true;
-            std::cout << std::setw(2) << i << ", " << j << std::endl;
         }
     }
 
@@ -81,52 +89,49 @@ class mineSweeper
 
     void reveal(const unsigned int posi, const unsigned int posj)
     {
-        if(board[posi][posj] == ' ')
+        if (board[posi][posj] == ' ')
             return;
 
         board[posi][posj] = mineNear(posi, posj);
-        if(board[posi][posj] != ' ')
+        if (board[posi][posj] != ' ')
             return;
-        
-        if(posj != 0)
+
+        if (posj != 0)
             reveal(posi, posj - 1);
 
-        if(posj < board[0].size() - 1)
+        if (posj < board[0].size() - 1)
             reveal(posi, posj + 1);
 
-        if(posi != 0)
-            reveal(posi - 1, posj);        
-        
-        if(posi < board[0].size() - 1)
-            reveal(posi + 1, posj);
+        if (posi != 0)
+            reveal(posi - 1, posj);
 
+        if (posi < board[0].size() - 1)
+            reveal(posi + 1, posj);
     }
 
     char mineNear(const size_t i, const size_t j)
     {
         unsigned int mines = 0;
 
-        mines += minesAt(i - 1, j - 1);
-        mines += minesAt(i - 1, j);
-        mines += minesAt(i - 1, j + 1);
-        mines += minesAt(i, j - 1);
-        mines += minesAt(i, j + 1);
-        mines += minesAt(i + 1, j - 1);
-        mines += minesAt(i + 1, j);
-        mines += minesAt(i + 1, j + 1);
+        for (size_t rowCount = 0, row = i - 1; rowCount < 3; ++rowCount, ++row)
+            for (size_t colCount = 0, col = j - 1; colCount < 3; ++colCount, ++col)
+                mines += mineAt(row, col);
 
         if (mines == 0)
             return ' ';
         return mines + 48;
     }
 
-    unsigned int minesAt(const int i, const int j)
+    unsigned int mineAt(const int i, const int j)
     {
-        return (i >= 0 && j >= 0 && static_cast<unsigned>(i) < board[0].size() && static_cast<unsigned>(j) < board[0].size() && mask[i][j]);
+        return (i >= 0 && j >= 0 
+        && static_cast<unsigned>(i) < board.size() 
+        && static_cast<unsigned>(j) < board.size() 
+        && mask[i][j]);
     }
 };
 
-unsigned const gridSize = 16;
+unsigned const gridSize = 8;
 
 int main()
 {
@@ -139,20 +144,21 @@ int main()
     while (true)
     {
         std::cout << "Enter the Row and Coloumn: ";
-
         unsigned int posi, posj;
         getValues(posi, posj);
 
         if (game.isMine(posi, posj))
         {
+            system("clear");
             std::cout << "Oops! "
                       << "You stepped on a mine!"
                       << std::endl;
             game.display(1);
-            break;
+            return 0;
         }
 
         game.reveal(posi, posj);
+
         system("clear");
         game.display();
     }
