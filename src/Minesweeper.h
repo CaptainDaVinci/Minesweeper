@@ -17,9 +17,9 @@ auto constexpr CLEAR = "\x1b[2J";
 class Minesweeper
 {
   private:
-    const static int GRIDSIZE = 8;
+    const static int GRIDSIZE = 20;
     std::array<std::array<Cell, GRIDSIZE>, GRIDSIZE> board;
-    const int totalMines = 10;
+    const int totalMines = 40;
 
   public:
     Minesweeper() { generateMines(); }

@@ -12,12 +12,12 @@ int main()
     {
         minesweeper.display();
         std::cout << "Enter the Row and coloumn: ";
-        int row, col;
+        int row = 0, col = 0;
 
         if (getCoordinate(row, col, minesweeper.getBoardSize()))
         {
             minesweeper.placeFlag(row, col);
-            if(minesweeper.isWon())
+            if (minesweeper.isWon())
             {
                 std::cout << "You Won the Game!\n";
                 break;
@@ -34,7 +34,7 @@ int main()
 
         minesweeper.reveal(row, col);
 
-        if(minesweeper.isWon())
+        if (minesweeper.isWon())
         {
             minesweeper.display(true);
             std::cout << "You Won the game!\n";
@@ -49,28 +49,32 @@ bool getCoordinate(int &row, int &col, const int GRIDSIZE)
     {
         std::string input;
         getline(std::cin, input);
-        std::istringstream ss(input);
-        char ch;
 
-        ss >> row >> col >> ch;
-
-        if (row >= GRIDSIZE || row < 0)
+        if (!input.empty())
         {
-            std::cout << "Illegal Input!\n"
-                         "Try again\n";
-            continue;
+            std::istringstream ss(input);
+            char ch;
+
+            ss >> row >> col >> ch;
+
+            if (row >= GRIDSIZE || row < 0)
+            {
+                std::cout << "Illegal Input!\n"
+                             "Try again\n";
+                continue;
+            }
+
+            if (col >= GRIDSIZE || col < 0)
+            {
+                std::cout << "Illegal Input!\n"
+                             "Try again\n";
+                continue;
+            }
+
+            if (ch == 'f' || ch == 'F')
+                return true;
+
+            return false;
         }
-
-        if (col >= GRIDSIZE || col < 0)
-        {
-            std::cout << "Illegal Input!\n"
-                         "Try again\n";
-            continue;
-        }
-
-        if (ch == 'f' || ch == 'F')
-            return true;
-
-        return false;
     }
 }
