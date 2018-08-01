@@ -126,7 +126,7 @@ bool Minesweeper::mineAt(int row, int col) const
 
 void Minesweeper::placeFlag(int row, int col)
 {
-    if(board[row][col].getState() != seen &&)
+    if(board[row][col].getState() != seen)
         board[row][col].setState(flag);
 }
 
